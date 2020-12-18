@@ -1,6 +1,7 @@
 import 'dart:math';
 
 import 'package:after_layout/after_layout.dart';
+import 'package:animated_text_kit/animated_text_kit.dart';
 import 'package:faal/models/ganjoor/GanjoorPoemCompleteViewModel.dart';
 import 'package:faal/models/recitation/PublicRecitationViewModel.dart';
 import 'package:faal/services/ganjoor-service.dart';
@@ -113,7 +114,12 @@ class _MyHomePageState extends State<MyHomePage>
   }
 
   Future _faal() async {
+    if (_player.playing) {
+      await _player.stop();
+    }
+
     setState(() {
+      _curVerseOrder = 0;
       _isLoading = true;
     });
     var res = await GanjoorService().faal();
@@ -134,12 +140,35 @@ class _MyHomePageState extends State<MyHomePage>
   List<Widget> get _verseWigets {
     if (_poem == null) return [];
     return _poem.poem.verses
-        .map((e) => Text(e.item2,
-            textAlign: TextAlign.center,
-            style: TextStyle(
-                fontFamily: 'IranNastaliq',
-                fontSize: 28,
-                color: e.item1 == _curVerseOrder ? Colors.red : Colors.black)))
+        .map((e) => Row(mainAxisAlignment: MainAxisAlignment.center, children: [
+              Visibility(
+                  child: Text(
+                    e.item2,
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                        fontFamily: 'IranNastaliq',
+                        fontSize: 28,
+                        color: e.item1 == _curVerseOrder
+                            ? Colors.red
+                            : Colors.black),
+                  ),
+                  visible: e.item1 != _curVerseOrder),
+              Visibility(
+                  child: TyperAnimatedTextKit(
+                    repeatForever: false,
+                    isRepeatingAnimation: false,
+                    speed: const Duration(milliseconds: 100),
+                    text: [
+                      e.item2,
+                    ],
+                    textStyle: TextStyle(
+                        fontSize: 36,
+                        fontFamily: "IranNastaliq",
+                        color: Colors.red),
+                    textAlign: TextAlign.start,
+                  ),
+                  visible: e.item1 == _curVerseOrder)
+            ]))
         .toList();
   }
 
@@ -192,6 +221,7 @@ class _MyHomePageState extends State<MyHomePage>
                       }
 
                       setState(() {
+                        _curVerseOrder = 0;
                         _isLoading = true;
                       });
 
