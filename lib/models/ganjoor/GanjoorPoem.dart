@@ -25,7 +25,7 @@ class GanjoorPoem {
     List<Tuple2<int, String>> locVeres = List<Tuple2<int, String>>();
     int i = 1;
     for (String line in poemText.split('\r\n')) {
-      locVeres.add(Tuple2<int, String>(i, ' ' + line + ' '));
+      locVeres.add(Tuple2<int, String>(i, '  ' + line + '  '));
       i++;
     }
 

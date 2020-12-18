@@ -11,6 +11,7 @@ import 'package:just_audio/just_audio.dart';
 import 'package:loading_overlay/loading_overlay.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:universal_html/html.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 void main() {
   runApp(FaalApp());
@@ -50,7 +51,7 @@ class FaalAppState extends State<FaalApp> {
             // or simply save your changes to "hot reload" in a Flutter IDE).
             // Notice that the counter didn't reset back to zero; the application
             // is not restarted.
-            primarySwatch: Colors.green,
+            primarySwatch: Colors.amber,
             fontFamily: 'Samim'),
         home: MyHomePage(),
         builder: (BuildContext context, Widget child) {
@@ -94,6 +95,8 @@ class _MyHomePageState extends State<MyHomePage>
   PublicRecitationViewModel _recitation;
   AudioPlayer _player;
   int _curVerseOrder = 0;
+  DecorationImage _background =
+      DecorationImage(image: AssetImage('images/paper.jpg'), fit: BoxFit.cover);
   @override
   void initState() {
     super.initState();
@@ -113,7 +116,7 @@ class _MyHomePageState extends State<MyHomePage>
     super.dispose();
   }
 
-  Future _faal() async {
+  Future _faal(bool autoPlay) async {
     if (_player.playing) {
       await _player.stop();
     }
@@ -135,6 +138,8 @@ class _MyHomePageState extends State<MyHomePage>
         _poem = res.item1;
       }
     });
+
+    await _selectRandomRecitation(autoPlay);
   }
 
   List<Widget> get _verseWigets {
@@ -146,11 +151,9 @@ class _MyHomePageState extends State<MyHomePage>
                     e.item2,
                     textAlign: TextAlign.center,
                     style: TextStyle(
-                        fontFamily: 'IranNastaliq',
-                        fontSize: 28,
-                        color: e.item1 == _curVerseOrder
-                            ? Colors.red
-                            : Colors.black),
+                      fontFamily: 'IranNastaliq',
+                      fontSize: 28,
+                    ),
                   ),
                   visible: e.item1 != _curVerseOrder),
               Visibility(
@@ -164,7 +167,7 @@ class _MyHomePageState extends State<MyHomePage>
                     textStyle: TextStyle(
                         fontSize: 36,
                         fontFamily: "IranNastaliq",
-                        color: Colors.red),
+                        color: Colors.brown),
                     textAlign: TextAlign.start,
                   ),
                   visible: e.item1 == _curVerseOrder)
@@ -183,6 +186,43 @@ class _MyHomePageState extends State<MyHomePage>
     }
     setState(() {
       _curVerseOrder = verse.verseOrder;
+    });
+  }
+
+  Future _selectRandomRecitation(bool autoPlay) async {
+    if (_poem == null) {
+      return;
+    }
+    if (_poem.recitations.length == 0) {
+      return;
+    }
+
+    if (_player.playing) {
+      await _player.stop();
+      return;
+    }
+
+    setState(() {
+      _curVerseOrder = 0;
+      _isLoading = true;
+    });
+
+    _recitation = _poem.recitations[Random().nextInt(_poem.recitations.length)];
+
+    if (_recitation.verses == null) {
+      var res = await GanjoorService().getVerses(_recitation.id);
+      if (res.item2.isEmpty) {
+        _recitation.verses = res.item1;
+      }
+    }
+
+    await _player.setUrl(_recitation.mp3Url);
+    if (autoPlay) {
+      _player.play();
+    }
+
+    setState(() {
+      _isLoading = false;
     });
   }
 
@@ -205,29 +245,44 @@ class _MyHomePageState extends State<MyHomePage>
                 title: Text('فال حافظ'),
                 actions: [
                   IconButton(
-                    icon: Icon(_player.playing ? Icons.stop : Icons.play_arrow),
-                    tooltip: 'بخوان',
+                    icon: Icon(Icons.open_in_browser),
                     onPressed: () async {
                       if (_poem == null) {
                         return;
                       }
-                      if (_poem.recitations.length == 0) {
-                        return;
+                      var url = 'https://ganjoor.net' + _poem.poem.fullUrl;
+                      if (await canLaunch(url)) {
+                        await launch(url);
+                      } else {
+                        throw 'خطا در نمایش نشانی $url';
                       }
-
+                    },
+                  ),
+                  IconButton(
+                    icon: Icon(_player.playing
+                        ? Icons.stop_circle
+                        : Icons.play_circle_fill),
+                    tooltip: 'توقف / پخش',
+                    onPressed: () async {
                       if (_player.playing) {
                         await _player.stop();
-                        return;
+                      } else {
+                        await _player.play();
                       }
-
+                    },
+                  ),
+                  PopupMenuButton<int>(
+                    tooltip: 'تغییر خوانشگر',
+                    onSelected: (int id) async {
+                      if (_player.playing) {
+                        await _player.stop();
+                      }
                       setState(() {
-                        _curVerseOrder = 0;
                         _isLoading = true;
+                        _recitation = _poem.recitations
+                            .where((element) => element.id == id)
+                            .first;
                       });
-
-                      _recitation = _poem.recitations[
-                          Random().nextInt(_poem.recitations.length)];
-
                       if (_recitation.verses == null) {
                         var res =
                             await GanjoorService().getVerses(_recitation.id);
@@ -243,45 +298,64 @@ class _MyHomePageState extends State<MyHomePage>
                         _isLoading = false;
                       });
                     },
-                  ),
+                    child: RaisedButton.icon(
+                        icon: Icon(Icons.person),
+                        onPressed: null,
+                        label: Text(_recitation == null
+                            ? ''
+                            : _recitation.audioArtist)),
+                    itemBuilder: (BuildContext context) {
+                      if (_poem != null) {
+                        return _poem.recitations
+                            .map((e) => PopupMenuItem<int>(
+                                value: e.id, child: Text(e.audioArtist)))
+                            .toList();
+                      }
+                      return <PopupMenuEntry<int>>[];
+                    },
+                  )
                 ],
               ),
               body: SingleChildScrollView(
-                  child: Center(
-                // Center is a layout widget. It takes a single child and positions it
-                // in the middle of the parent.
-                child: Column(
-                  // Column is also a layout widget. It takes a list of children and
-                  // arranges them vertically. By default, it sizes itself to fit its
-                  // children horizontally, and tries to be as tall as its parent.
-                  //
-                  // Invoke "debug painting" (press "p" in the console, choose the
-                  // "Toggle Debug Paint" action from the Flutter Inspector in Android
-                  // Studio, or the "Toggle Debug Paint" command in Visual Studio Code)
-                  // to see the wireframe for each widget.
-                  //
-                  // Column has various properties to control how it sizes itself and
-                  // how it positions its children. Here we use mainAxisAlignment to
-                  // center the children vertically; the main axis here is the vertical
-                  // axis because Columns are vertical (the cross axis would be
-                  // horizontal).
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: _verseWigets,
-                ),
-              )),
+                  child: DecoratedBox(
+                      decoration: BoxDecoration(
+                        image: _background,
+                      ),
+                      child: Center(
+                        // Center is a layout widget. It takes a single child and positions it
+                        // in the middle of the parent.
+                        child: Column(
+                          // Column is also a layout widget. It takes a list of children and
+                          // arranges them vertically. By default, it sizes itself to fit its
+                          // children horizontally, and tries to be as tall as its parent.
+                          //
+                          // Invoke "debug painting" (press "p" in the console, choose the
+                          // "Toggle Debug Paint" action from the Flutter Inspector in Android
+                          // Studio, or the "Toggle Debug Paint" command in Visual Studio Code)
+                          // to see the wireframe for each widget.
+                          //
+                          // Column has various properties to control how it sizes itself and
+                          // how it positions its children. Here we use mainAxisAlignment to
+                          // center the children vertically; the main axis here is the vertical
+                          // axis because Columns are vertical (the cross axis would be
+                          // horizontal).
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          children: _verseWigets,
+                        ),
+                      ))),
               floatingActionButton: FloatingActionButton(
                 onPressed: () async {
-                  await _faal();
+                  await _faal(true);
                 },
                 tooltip: 'فال نو',
-                child: Icon(Icons.add),
+                child: Icon(Icons.refresh),
               ), // This trailing comma makes auto-formatting nicer for build methods.
             )));
   }
 
   @override
   void afterFirstLayout(BuildContext context) async {
-    await _faal();
+    await _faal(false);
   }
 }

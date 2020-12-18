@@ -29,6 +29,10 @@
   <title>فال حافظ</title>
   <link rel="manifest" href="manifest.json">
   <style>
+    body{
+      background-color: #ffc107;
+    }
+
     .loading {
       display: flex;
       justify-content: center;
@@ -37,6 +41,11 @@
       position: absolute;
       top: 50%;
       left: 50%;
+
+      background-image: url('images/hafez.png');
+      background-repeat: no-repeat;
+      background-position: center center;
+     
       -ms-transform: translate(-50%, -50%);
       transform: translate(-50%, -50%);
     }
@@ -44,16 +53,17 @@
     .loader {
       border: 16px solid #f3f3f3;
       border-radius: 50%;
-      border-top: 16px solid #4caf50;
-      border-right: 16px solid #4caf50;
-      border-bottom: 16px solid #4caf50;
-      border-left: 16px solid white;
-      width: 120px;
-      height: 120px;
+      border-top: 16px solid #795548;
+      border-right: 16px solid #795548;
+      border-bottom: 16px solid #795548;
+      border-left: 16px solid #ffc107;
+      width: 194px;
+      height: 194px;
       -webkit-animation: spin 2s linear infinite;
       animation: spin 2s linear infinite;
+     
     }
-    
+ 
     @-webkit-keyframes spin {
       0% {
         -webkit-transform: rotate(0deg);
@@ -75,7 +85,8 @@
 </head>
 <body>
   <div class="loading">
-    <div class="loader"></div>
+    <div class="loader">
+    </div>
   </div>
   <!-- This script installs service_worker.js to provide PWA functionality to
        application. For more information, see:
