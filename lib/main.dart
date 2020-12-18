@@ -1,4 +1,5 @@
 import 'package:after_layout/after_layout.dart';
+import 'package:faal/models/ganjoor/GanjoorPoemCompleteViewModel.dart';
 import 'package:faal/services/ganjoor-service.dart';
 import 'package:flutter/material.dart';
 import 'package:loading_overlay/loading_overlay.dart';
@@ -83,7 +84,7 @@ class _MyHomePageState extends State<MyHomePage>
   final GlobalKey<ScaffoldMessengerState> _key =
       GlobalKey<ScaffoldMessengerState>();
   bool _isLoading = false;
-  dynamic _poem;
+  GanjoorPoemCompleteViewModel _poem;
 
   Future _faal() async {
     setState(() {
@@ -121,6 +122,13 @@ class _MyHomePageState extends State<MyHomePage>
                 // Here we take the value from the MyHomePage object that was created by
                 // the App.build method, and use it to set our appbar title.
                 title: Text('فال حافظ'),
+                actions: [
+                  IconButton(
+                    icon: Icon(Icons.play_arrow),
+                    tooltip: 'بخوان',
+                    onPressed: () async {},
+                  ),
+                ],
               ),
               body: SingleChildScrollView(
                   child: Center(
@@ -144,7 +152,7 @@ class _MyHomePageState extends State<MyHomePage>
                   mainAxisAlignment: MainAxisAlignment.center,
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: <Widget>[
-                    Text(_poem == null ? '' : _poem,
+                    Text(_poem == null ? '' : _poem.poem.htmlText,
                         textAlign: TextAlign.center,
                         style:
                             TextStyle(fontFamily: 'IranNastaliq', fontSize: 28))
