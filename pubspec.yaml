@@ -64,4 +64,7 @@ flutter:
   - family: Samim
     fonts:
       - asset: fonts/Samim.ttf
+  - family: IranNastaliq
+    fonts:
+      - asset: fonts/IranNastaliq.ttf
 

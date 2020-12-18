@@ -122,7 +122,8 @@ class _MyHomePageState extends State<MyHomePage>
                 // the App.build method, and use it to set our appbar title.
                 title: Text('فال حافظ'),
               ),
-              body: Center(
+              body: SingleChildScrollView(
+                  child: Center(
                 // Center is a layout widget. It takes a single child and positions it
                 // in the middle of the parent.
                 child: Column(
@@ -143,13 +144,13 @@ class _MyHomePageState extends State<MyHomePage>
                   mainAxisAlignment: MainAxisAlignment.center,
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: <Widget>[
-                    Text(
-                      _poem == null ? '' : _poem,
-                      textAlign: TextAlign.center,
-                    )
+                    Text(_poem == null ? '' : _poem,
+                        textAlign: TextAlign.center,
+                        style:
+                            TextStyle(fontFamily: 'IranNastaliq', fontSize: 28))
                   ],
                 ),
-              ),
+              )),
               floatingActionButton: FloatingActionButton(
                 onPressed: () async {
                   await _faal();
