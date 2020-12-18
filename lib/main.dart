@@ -99,7 +99,6 @@ class _MyHomePageState extends State<MyHomePage>
     setState(() {
       _isLoading = false;
       if (res.item2.isEmpty) {
-        print(res.item1);
         _poem = res.item1;
       }
     });
@@ -142,10 +141,12 @@ class _MyHomePageState extends State<MyHomePage>
                   // axis because Columns are vertical (the cross axis would be
                   // horizontal).
                   mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.center,
                   children: <Widget>[
                     Text(
                       _poem == null ? '' : _poem,
-                    ),
+                      textAlign: TextAlign.center,
+                    )
                   ],
                 ),
               ),

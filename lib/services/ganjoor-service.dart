@@ -14,8 +14,17 @@ class GanjoorService {
       });
 
       if (response.statusCode == 200) {
-        return Tuple2<dynamic, String>(
-            json.decode(response.body)['poem']['plainText'], '');
+        String htmlText = json.decode(response.body)['poem']['htmlText'];
+        htmlText = htmlText.replaceAll('<p>', '');
+        htmlText = htmlText.replaceAll('<div class=\"b\">', '');
+        htmlText = htmlText.replaceAll('<div class=\"b2\">', '');
+        htmlText = htmlText.replaceAll('<div class=\"m1\">', '');
+        htmlText = htmlText.replaceAll('<div class=\"m2\">', '');
+        htmlText = htmlText.replaceAll('<div class=\"n\">', '');
+        htmlText = htmlText.replaceAll('</p>', '');
+        htmlText = htmlText.replaceAll('</div>', '');
+
+        return Tuple2<dynamic, String>(htmlText, '');
       } else {
         return Tuple2<dynamic, String>(
             null,
