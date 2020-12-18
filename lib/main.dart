@@ -1,7 +1,12 @@
+import 'dart:math';
+
 import 'package:after_layout/after_layout.dart';
 import 'package:faal/models/ganjoor/GanjoorPoemCompleteViewModel.dart';
+import 'package:faal/models/recitation/PublicRecitationViewModel.dart';
 import 'package:faal/services/ganjoor-service.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:just_audio/just_audio.dart';
 import 'package:loading_overlay/loading_overlay.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:universal_html/html.dart';
@@ -85,6 +90,27 @@ class _MyHomePageState extends State<MyHomePage>
       GlobalKey<ScaffoldMessengerState>();
   bool _isLoading = false;
   GanjoorPoemCompleteViewModel _poem;
+  PublicRecitationViewModel _recitation;
+  AudioPlayer _player;
+  int _curVerseOrder = 0;
+  @override
+  void initState() {
+    super.initState();
+    _player = AudioPlayer();
+    SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle(
+      statusBarColor: Colors.black,
+    ));
+    _player.createPositionStream().listen((event) {
+      setCurVerse(event);
+    });
+  }
+
+  @override
+  void dispose() {
+    _player.dispose();
+
+    super.dispose();
+  }
 
   Future _faal() async {
     setState(() {
@@ -102,6 +128,32 @@ class _MyHomePageState extends State<MyHomePage>
       if (res.item2.isEmpty) {
         _poem = res.item1;
       }
+    });
+  }
+
+  List<Widget> get _verseWigets {
+    if (_poem == null) return [];
+    return _poem.poem.verses
+        .map((e) => Text(e.item2,
+            textAlign: TextAlign.center,
+            style: TextStyle(
+                fontFamily: 'IranNastaliq',
+                fontSize: 28,
+                color: e.item1 == _curVerseOrder ? Colors.red : Colors.black)))
+        .toList();
+  }
+
+  void setCurVerse(Duration position) {
+    if (position == null || _recitation == null || _recitation.verses == null) {
+      return;
+    }
+    var verse = _recitation.verses.lastWhere(
+        (element) => element.audioStartMilliseconds <= position.inMilliseconds);
+    if (verse == null) {
+      return;
+    }
+    setState(() {
+      _curVerseOrder = verse.verseOrder;
     });
   }
 
@@ -124,9 +176,43 @@ class _MyHomePageState extends State<MyHomePage>
                 title: Text('فال حافظ'),
                 actions: [
                   IconButton(
-                    icon: Icon(Icons.play_arrow),
+                    icon: Icon(_player.playing ? Icons.stop : Icons.play_arrow),
                     tooltip: 'بخوان',
-                    onPressed: () async {},
+                    onPressed: () async {
+                      if (_poem == null) {
+                        return;
+                      }
+                      if (_poem.recitations.length == 0) {
+                        return;
+                      }
+
+                      if (_player.playing) {
+                        await _player.stop();
+                        return;
+                      }
+
+                      setState(() {
+                        _isLoading = true;
+                      });
+
+                      _recitation = _poem.recitations[
+                          Random().nextInt(_poem.recitations.length)];
+
+                      if (_recitation.verses == null) {
+                        var res =
+                            await GanjoorService().getVerses(_recitation.id);
+                        if (res.item2.isEmpty) {
+                          _recitation.verses = res.item1;
+                        }
+                      }
+
+                      await _player.setUrl(_recitation.mp3Url);
+                      _player.play();
+
+                      setState(() {
+                        _isLoading = false;
+                      });
+                    },
                   ),
                 ],
               ),
@@ -151,12 +237,7 @@ class _MyHomePageState extends State<MyHomePage>
                   // horizontal).
                   mainAxisAlignment: MainAxisAlignment.center,
                   crossAxisAlignment: CrossAxisAlignment.center,
-                  children: <Widget>[
-                    Text(_poem == null ? '' : _poem.poem.htmlText,
-                        textAlign: TextAlign.center,
-                        style:
-                            TextStyle(fontFamily: 'IranNastaliq', fontSize: 28))
-                  ],
+                  children: _verseWigets,
                 ),
               )),
               floatingActionButton: FloatingActionButton(

@@ -33,7 +33,9 @@ dependencies:
   loading_overlay: ^0.2.1
   after_layout: ^1.0.7+2
   universal_html: ^1.2.3
-
+  just_audio: ^0.5.5
+  animated_text_kit: ^3.1.0
+  
 dev_dependencies:
   flutter_test:
     sdk: flutter

@@ -1,10 +1,12 @@
+import 'package:tuple/tuple.dart';
+
 class GanjoorPoem {
   final int id;
   final String title;
   final String fullUrl;
-  String htmlText;
+  final List<Tuple2<int, String>> verses;
 
-  GanjoorPoem({this.id, this.title, this.fullUrl, this.htmlText});
+  GanjoorPoem({this.id, this.title, this.fullUrl, this.verses});
 
   factory GanjoorPoem.fromJson(Map<String, dynamic> json) {
     if (json == null) {
@@ -20,10 +22,17 @@ class GanjoorPoem {
     poemText = poemText.replaceAll('</p>', '');
     poemText = poemText.replaceAll('</div>', '');
 
+    List<Tuple2<int, String>> locVeres = List<Tuple2<int, String>>();
+    int i = 1;
+    for (String line in poemText.split('\r\n')) {
+      locVeres.add(Tuple2<int, String>(i, line));
+      i++;
+    }
+
     return GanjoorPoem(
         id: json['id'],
         title: json['title'],
         fullUrl: json['fullUrl'],
-        htmlText: poemText);
+        verses: locVeres);
   }
 }
