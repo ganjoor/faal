@@ -95,8 +95,7 @@ class _MyHomePageState extends State<MyHomePage>
   PublicRecitationViewModel _recitation;
   AudioPlayer _player;
   int _curVerseOrder = 0;
-  DecorationImage _background =
-      DecorationImage(image: AssetImage('images/paper.jpg'), fit: BoxFit.cover);
+
   @override
   void initState() {
     super.initState();
@@ -242,7 +241,15 @@ class _MyHomePageState extends State<MyHomePage>
               appBar: AppBar(
                 // Here we take the value from the MyHomePage object that was created by
                 // the App.build method, and use it to set our appbar title.
-                title: Text('فال حافظ'),
+                title: Row(children: [
+                  Image(
+                    image: AssetImage('web/icons/Icon-192.png'),
+                    width: AppBar().preferredSize.height,
+                    height: AppBar().preferredSize.height,
+                    alignment: FractionalOffset.center,
+                  ),
+                  Text('فال حافظ')
+                ]),
                 actions: [
                   IconButton(
                     icon: Icon(Icons.open_in_browser),
@@ -319,7 +326,9 @@ class _MyHomePageState extends State<MyHomePage>
               body: SingleChildScrollView(
                   child: DecoratedBox(
                       decoration: BoxDecoration(
-                        image: _background,
+                        image: DecorationImage(
+                            image: AssetImage('images/paper.jpg'),
+                            fit: BoxFit.cover),
                       ),
                       child: Center(
                         // Center is a layout widget. It takes a single child and positions it
