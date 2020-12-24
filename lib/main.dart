@@ -143,7 +143,7 @@ class _MyHomePageState extends State<MyHomePage>
 
   List<Widget> get _verseWigets {
     if (_poem == null) return [];
-    return _poem.poem.verses
+    return _poem.verses
         .map((e) => Row(mainAxisAlignment: MainAxisAlignment.center, children: [
               Visibility(
                   child: Text(
@@ -257,7 +257,7 @@ class _MyHomePageState extends State<MyHomePage>
                       if (_poem == null) {
                         return;
                       }
-                      var url = 'https://ganjoor.net' + _poem.poem.fullUrl;
+                      var url = 'https://ganjoor.net' + _poem.fullUrl;
                       if (await canLaunch(url)) {
                         await launch(url);
                       } else {
