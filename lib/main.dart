@@ -305,7 +305,7 @@ class _MyHomePageState extends State<MyHomePage>
                         _isLoading = false;
                       });
                     },
-                    child: RaisedButton.icon(
+                    child: ElevatedButton.icon(
                         icon: Icon(Icons.person),
                         onPressed: null,
                         label: Text(_recitation == null

@@ -28,23 +28,6 @@ class GanjoorPoemCompleteViewModel {
       return null;
     }
 
-    String poemText = json['htmlText'];
-    poemText = poemText.replaceAll('<p>', '');
-    poemText = poemText.replaceAll('<div class=\"b\">', '');
-    poemText = poemText.replaceAll('<div class=\"b2\">', '');
-    poemText = poemText.replaceAll('<div class=\"m1\">', '');
-    poemText = poemText.replaceAll('<div class=\"m2\">', '');
-    poemText = poemText.replaceAll('<div class=\"n\">', '');
-    poemText = poemText.replaceAll('</p>', '');
-    poemText = poemText.replaceAll('</div>', '');
-
-    List<Tuple2<int, String>> locVeres = [];
-    int i = 1;
-    for (String line in poemText.split('\r\n')) {
-      locVeres.add(Tuple2<int, String>(i, '  ' + line + '  '));
-      i++;
-    }
-
     return GanjoorPoemCompleteViewModel(
         id: json['id'],
         title: json['title'],
@@ -56,6 +39,8 @@ class GanjoorPoemCompleteViewModel {
         recitations: (json['recitations'] as List)
             .map((i) => PublicRecitationViewModel.fromJson(i))
             .toList(),
-        verses: locVeres);
+        verses: (json['verses'] as List)
+            .map((e) => Tuple2<int, String>(e['vOrder'], e['text']))
+            .toList());
   }
 }
