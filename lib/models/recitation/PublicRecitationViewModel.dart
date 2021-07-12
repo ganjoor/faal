@@ -19,30 +19,30 @@ class PublicRecitationViewModel {
   final String xmlText;
   final String plainText;
   final String htmlText;
-  List<RecitationVerseSync> verses;
+  List<RecitationVerseSync?>? verses;
   bool isExpanded = false;
 
   PublicRecitationViewModel(
-      {this.id,
-      this.poemId,
-      this.poemFullTitle,
-      this.poemFullUrl,
-      this.audioTitle,
-      this.audioArtist,
-      this.audioArtistUrl,
-      this.audioSrc,
-      this.audioSrcUrl,
-      this.legacyAudioGuid,
-      this.mp3FileCheckSum,
-      this.mp3SizeInBytes,
-      this.publishDate,
-      this.fileLastUpdated,
-      this.mp3Url,
-      this.xmlText,
-      this.plainText,
-      this.htmlText});
+      {required this.id,
+      required this.poemId,
+      required this.poemFullTitle,
+      required this.poemFullUrl,
+      required this.audioTitle,
+      required this.audioArtist,
+      required this.audioArtistUrl,
+      required this.audioSrc,
+      required this.audioSrcUrl,
+      required this.legacyAudioGuid,
+      required this.mp3FileCheckSum,
+      required this.mp3SizeInBytes,
+      required this.publishDate,
+      required this.fileLastUpdated,
+      required this.mp3Url,
+      required this.xmlText,
+      required this.plainText,
+      required this.htmlText});
 
-  factory PublicRecitationViewModel.fromJson(Map<String, dynamic> json) {
+  static PublicRecitationViewModel? fromJson(Map<String, dynamic>? json) {
     if (json == null) {
       return null;
     }

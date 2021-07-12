@@ -54,7 +54,7 @@ class FaalAppState extends State<FaalApp> {
             primarySwatch: Colors.amber,
             fontFamily: 'Samim'),
         home: MyHomePage(),
-        builder: (BuildContext context, Widget child) {
+        builder: (BuildContext context, Widget? child) {
           return Directionality(
             textDirection: TextDirection.rtl,
             child: Builder(
@@ -63,7 +63,7 @@ class FaalAppState extends State<FaalApp> {
                   data: MediaQuery.of(context).copyWith(
                     textScaleFactor: 1.0,
                   ),
-                  child: child,
+                  child: child!,
                 );
               },
             ),
@@ -91,9 +91,9 @@ class _MyHomePageState extends State<MyHomePage>
   final GlobalKey<ScaffoldMessengerState> _key =
       GlobalKey<ScaffoldMessengerState>();
   bool _isLoading = false;
-  GanjoorPoemCompleteViewModel _poem;
-  PublicRecitationViewModel _recitation;
-  AudioPlayer _player;
+  GanjoorPoemCompleteViewModel? _poem;
+  PublicRecitationViewModel? _recitation;
+  late AudioPlayer _player;
   int _curVerseOrder = 0;
 
   @override
@@ -126,7 +126,7 @@ class _MyHomePageState extends State<MyHomePage>
     });
     var res = await GanjoorService().faal();
     if (res.item2.isNotEmpty) {
-      _key.currentState.showSnackBar(SnackBar(
+      _key.currentState!.showSnackBar(SnackBar(
         content: Text("خطا در دریافت نتیجه: " + res.item2),
         backgroundColor: Colors.red,
       ));
@@ -143,7 +143,7 @@ class _MyHomePageState extends State<MyHomePage>
 
   List<Widget> get _verseWigets {
     if (_poem == null) return [];
-    return _poem.verses
+    return _poem!.verses
         .map((e) => Row(mainAxisAlignment: MainAxisAlignment.center, children: [
               Visibility(
                   child: Text(
@@ -156,30 +156,35 @@ class _MyHomePageState extends State<MyHomePage>
                   ),
                   visible: e.item1 != _curVerseOrder),
               Visibility(
-                  child: TyperAnimatedTextKit(
-                    repeatForever: false,
-                    isRepeatingAnimation: false,
-                    speed: const Duration(milliseconds: 100),
-                    text: [
-                      e.item2,
-                    ],
-                    textStyle: TextStyle(
-                        fontSize: 36,
-                        fontFamily: "IranNastaliq",
-                        color: Colors.brown),
-                    textAlign: TextAlign.start,
-                  ),
+                  child: AnimatedTextKit(
+                      repeatForever: false,
+                      isRepeatingAnimation: false,
+                      animatedTexts: [
+                        TypewriterAnimatedText(
+                          e.item2,
+                          speed: const Duration(milliseconds: 100),
+                          textStyle: TextStyle(
+                              fontSize: 36,
+                              fontFamily: "IranNastaliq",
+                              color: Colors.brown),
+                          textAlign: TextAlign.start,
+                        )
+                      ]),
                   visible: e.item1 == _curVerseOrder)
             ]))
         .toList();
   }
 
-  void setCurVerse(Duration position) {
-    if (position == null || _recitation == null || _recitation.verses == null) {
+  void setCurVerse(Duration? position) {
+    if (position == null ||
+        _recitation == null ||
+        _recitation!.verses == null) {
       return;
     }
-    var verse = _recitation.verses.lastWhere(
-        (element) => element.audioStartMilliseconds <= position.inMilliseconds);
+    var verse = _recitation == null || _recitation!.verses == null
+        ? null
+        : _recitation!.verses!.lastWhere((element) =>
+            element!.audioStartMilliseconds <= position.inMilliseconds);
     if (verse == null) {
       return;
     }
@@ -192,7 +197,7 @@ class _MyHomePageState extends State<MyHomePage>
     if (_poem == null) {
       return;
     }
-    if (_poem.recitations.length == 0) {
+    if (_poem!.recitations.length == 0) {
       return;
     }
 
@@ -206,16 +211,17 @@ class _MyHomePageState extends State<MyHomePage>
       _isLoading = true;
     });
 
-    _recitation = _poem.recitations[Random().nextInt(_poem.recitations.length)];
+    _recitation =
+        _poem!.recitations[Random().nextInt(_poem!.recitations.length)];
 
-    if (_recitation.verses == null) {
-      var res = await GanjoorService().getVerses(_recitation.id);
+    if (_recitation!.verses == null) {
+      var res = await GanjoorService().getVerses(_recitation!.id);
       if (res.item2.isEmpty) {
-        _recitation.verses = res.item1;
+        _recitation!.verses = res.item1;
       }
     }
 
-    await _player.setUrl(_recitation.mp3Url);
+    await _player.setUrl(_recitation!.mp3Url);
     if (autoPlay) {
       _player.play();
     }
@@ -257,7 +263,7 @@ class _MyHomePageState extends State<MyHomePage>
                       if (_poem == null) {
                         return;
                       }
-                      var url = 'https://ganjoor.net' + _poem.fullUrl;
+                      var url = 'https://ganjoor.net' + _poem!.fullUrl;
                       if (await canLaunch(url)) {
                         await launch(url);
                       } else {
@@ -286,19 +292,19 @@ class _MyHomePageState extends State<MyHomePage>
                       }
                       setState(() {
                         _isLoading = true;
-                        _recitation = _poem.recitations
-                            .where((element) => element.id == id)
+                        _recitation = _poem!.recitations
+                            .where((element) => element!.id == id)
                             .first;
                       });
-                      if (_recitation.verses == null) {
+                      if (_recitation!.verses == null) {
                         var res =
-                            await GanjoorService().getVerses(_recitation.id);
+                            await GanjoorService().getVerses(_recitation!.id);
                         if (res.item2.isEmpty) {
-                          _recitation.verses = res.item1;
+                          _recitation!.verses = res.item1;
                         }
                       }
 
-                      await _player.setUrl(_recitation.mp3Url);
+                      await _player.setUrl(_recitation!.mp3Url);
                       _player.play();
 
                       setState(() {
@@ -310,12 +316,12 @@ class _MyHomePageState extends State<MyHomePage>
                         onPressed: null,
                         label: Text(_recitation == null
                             ? ''
-                            : _recitation.audioArtist)),
+                            : _recitation!.audioArtist)),
                     itemBuilder: (BuildContext context) {
                       if (_poem != null) {
-                        return _poem.recitations
+                        return _poem!.recitations
                             .map((e) => PopupMenuItem<int>(
-                                value: e.id, child: Text(e.audioArtist)))
+                                value: e!.id, child: Text(e.audioArtist)))
                             .toList();
                       }
                       return <PopupMenuEntry<int>>[];

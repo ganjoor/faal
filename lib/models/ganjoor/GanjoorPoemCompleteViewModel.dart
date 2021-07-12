@@ -9,21 +9,21 @@ class GanjoorPoemCompleteViewModel {
   final String fullUrl;
   final String plainText;
   final String htmlText;
-  final List<PublicRecitationViewModel> recitations;
+  final List<PublicRecitationViewModel?> recitations;
   final List<Tuple2<int, String>> verses;
 
   GanjoorPoemCompleteViewModel(
-      {this.id,
-      this.title,
-      this.fullTitle,
-      this.urlSlug,
-      this.fullUrl,
-      this.plainText,
-      this.htmlText,
-      this.recitations,
-      this.verses});
+      {required this.id,
+      required this.title,
+      required this.fullTitle,
+      required this.urlSlug,
+      required this.fullUrl,
+      required this.plainText,
+      required this.htmlText,
+      required this.recitations,
+      required this.verses});
 
-  factory GanjoorPoemCompleteViewModel.fromJson(Map<String, dynamic> json) {
+  static GanjoorPoemCompleteViewModel? fromJson(Map<String, dynamic>? json) {
     if (json == null) {
       return null;
     }
