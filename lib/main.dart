@@ -2,9 +2,9 @@ import 'dart:math';
 
 import 'package:after_layout/after_layout.dart';
 import 'package:animated_text_kit/animated_text_kit.dart';
-import 'package:faal/models/ganjoor/GanjoorPoemCompleteViewModel.dart';
-import 'package:faal/models/recitation/PublicRecitationViewModel.dart';
-import 'package:faal/services/ganjoor-service.dart';
+import 'package:faal/models/ganjoor/ganjoor_poem_complete_view_model.dart';
+import 'package:faal/models/recitation/public_recitation_view_model.dart';
+import 'package:faal/services/ganjoor_service.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:just_audio/just_audio.dart';
@@ -14,10 +14,12 @@ import 'package:universal_html/html.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 void main() {
-  runApp(FaalApp());
+  runApp(const FaalApp());
 }
 
 class FaalApp extends StatefulWidget {
+  const FaalApp({Key? key}) : super(key: key);
+
   @override
   State<StatefulWidget> createState() => FaalAppState();
 }
@@ -53,7 +55,7 @@ class FaalAppState extends State<FaalApp> {
             // is not restarted.
             primarySwatch: Colors.amber,
             fontFamily: 'Samim'),
-        home: MyHomePage(),
+        home: const MyHomePage(),
         builder: (BuildContext context, Widget? child) {
           return Directionality(
             textDirection: TextDirection.rtl,
@@ -73,6 +75,8 @@ class FaalAppState extends State<FaalApp> {
 }
 
 class MyHomePage extends StatefulWidget {
+  const MyHomePage({Key? key}) : super(key: key);
+
   // This widget is the home page of your application. It is stateful, meaning
   // that it has a State object (defined below) that contains fields that affect
   // how it looks.
@@ -83,7 +87,7 @@ class MyHomePage extends StatefulWidget {
   // always marked "final".
 
   @override
-  _MyHomePageState createState() => _MyHomePageState();
+  State<MyHomePage> createState() => _MyHomePageState();
 }
 
 class _MyHomePageState extends State<MyHomePage>
@@ -100,7 +104,7 @@ class _MyHomePageState extends State<MyHomePage>
   void initState() {
     super.initState();
     _player = AudioPlayer();
-    SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle(
+    SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
       statusBarColor: Colors.black,
     ));
     _player.createPositionStream().listen((event) {
@@ -127,7 +131,7 @@ class _MyHomePageState extends State<MyHomePage>
     var res = await GanjoorService().faal();
     if (res.item2.isNotEmpty) {
       _key.currentState!.showSnackBar(SnackBar(
-        content: Text("خطا در دریافت نتیجه: " + res.item2),
+        content: Text('خطا در دریافت نتیجه: ${res.item2}'),
         backgroundColor: Colors.red,
       ));
     }
@@ -146,16 +150,17 @@ class _MyHomePageState extends State<MyHomePage>
     return _poem!.verses
         .map((e) => Row(mainAxisAlignment: MainAxisAlignment.center, children: [
               Visibility(
+                  visible: e.item1 != _curVerseOrder,
                   child: Text(
                     e.item2,
                     textAlign: TextAlign.center,
-                    style: TextStyle(
+                    style: const TextStyle(
                       fontFamily: 'IranNastaliq',
                       fontSize: 28,
                     ),
-                  ),
-                  visible: e.item1 != _curVerseOrder),
+                  )),
               Visibility(
+                  visible: e.item1 == _curVerseOrder,
                   child: AnimatedTextKit(
                       repeatForever: false,
                       isRepeatingAnimation: false,
@@ -163,14 +168,13 @@ class _MyHomePageState extends State<MyHomePage>
                         TypewriterAnimatedText(
                           e.item2,
                           speed: const Duration(milliseconds: 100),
-                          textStyle: TextStyle(
+                          textStyle: const TextStyle(
                               fontSize: 36,
-                              fontFamily: "IranNastaliq",
+                              fontFamily: 'IranNastaliq',
                               color: Colors.brown),
                           textAlign: TextAlign.start,
                         )
-                      ]),
-                  visible: e.item1 == _curVerseOrder)
+                      ]))
             ]))
         .toList();
   }
@@ -197,7 +201,7 @@ class _MyHomePageState extends State<MyHomePage>
     if (_poem == null) {
       return;
     }
-    if (_poem!.recitations.length == 0) {
+    if (_poem!.recitations.isEmpty) {
       return;
     }
 
@@ -223,7 +227,7 @@ class _MyHomePageState extends State<MyHomePage>
 
     await _player.setUrl(_recitation!.mp3Url);
     if (autoPlay) {
-      _player.play();
+      await _player.play();
     }
 
     setState(() {
@@ -249,21 +253,21 @@ class _MyHomePageState extends State<MyHomePage>
                 // the App.build method, and use it to set our appbar title.
                 title: Row(children: [
                   Image(
-                    image: AssetImage('web/icons/Icon-192.png'),
+                    image: const AssetImage('web/icons/Icon-192.png'),
                     width: AppBar().preferredSize.height,
                     height: AppBar().preferredSize.height,
                     alignment: FractionalOffset.center,
                   ),
-                  Text('فال حافظ')
+                  const Text('فال حافظ')
                 ]),
                 actions: [
                   IconButton(
-                    icon: Icon(Icons.open_in_browser),
+                    icon: const Icon(Icons.open_in_browser),
                     onPressed: () async {
                       if (_poem == null) {
                         return;
                       }
-                      var url = 'https://ganjoor.net' + _poem!.fullUrl;
+                      var url = 'https://ganjoor.net${_poem!.fullUrl}';
                       if (await canLaunch(url)) {
                         await launch(url);
                       } else {
@@ -305,14 +309,14 @@ class _MyHomePageState extends State<MyHomePage>
                       }
 
                       await _player.setUrl(_recitation!.mp3Url);
-                      _player.play();
+                      await _player.play();
 
                       setState(() {
                         _isLoading = false;
                       });
                     },
                     child: ElevatedButton.icon(
-                        icon: Icon(Icons.person),
+                        icon: const Icon(Icons.person),
                         onPressed: null,
                         label: Text(_recitation == null
                             ? ''
@@ -331,7 +335,7 @@ class _MyHomePageState extends State<MyHomePage>
               ),
               body: SingleChildScrollView(
                   child: DecoratedBox(
-                      decoration: BoxDecoration(
+                      decoration: const BoxDecoration(
                         image: DecorationImage(
                             image: AssetImage('images/paper.jpg'),
                             fit: BoxFit.cover),
@@ -364,7 +368,7 @@ class _MyHomePageState extends State<MyHomePage>
                   await _faal(true);
                 },
                 tooltip: 'فال نو',
-                child: Icon(Icons.refresh),
+                child: const Icon(Icons.refresh),
               ), // This trailing comma makes auto-formatting nicer for build methods.
             )));
   }

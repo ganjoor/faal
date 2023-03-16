@@ -1,4 +1,4 @@
-import 'package:faal/models/recitation/PublicRecitationViewModel.dart';
+import 'package:faal/models/recitation/public_recitation_view_model.dart';
 import 'package:tuple/tuple.dart';
 
 class GanjoorPoemCompleteViewModel {

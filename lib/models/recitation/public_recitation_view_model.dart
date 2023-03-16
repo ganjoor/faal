@@ -1,4 +1,4 @@
-import 'package:faal/models/recitation/recitation-verse-sync.dart';
+import 'package:faal/models/recitation/recitation_verse_sync.dart';
 
 class PublicRecitationViewModel {
   final int id;
