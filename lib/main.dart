@@ -268,8 +268,8 @@ class _MyHomePageState extends State<MyHomePage>
                         return;
                       }
                       var url = 'https://ganjoor.net${_poem!.fullUrl}';
-                      if (await canLaunch(url)) {
-                        await launch(url);
+                      if (await canLaunchUrl(Uri.parse(url))) {
+                        await launchUrl(Uri.parse(url));
                       } else {
                         throw 'خطا در نمایش نشانی $url';
                       }
