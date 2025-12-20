@@ -269,7 +269,12 @@ class _HomePageState extends State<HomePage> with AfterLayoutMixin<HomePage> {
                         child: Column(
                           mainAxisAlignment: MainAxisAlignment.center,
                           crossAxisAlignment: CrossAxisAlignment.center,
-                          children: _verseWigets,
+                          children: [
+                            SizedBox(
+                              height: 10,
+                            ),
+                            ..._verseWigets
+                          ],
                         ),
                       ))),
               floatingActionButton: FloatingActionButton(
