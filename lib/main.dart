@@ -123,12 +123,14 @@ class _MyHomePageState extends State<MyHomePage>
     if (_player.playing) {
       await _player.stop();
     }
-
+    _curVerseOrder = 0;
     setState(() {
-      _curVerseOrder = 0;
       _isLoading = true;
     });
     var res = await GanjoorService().faal();
+    setState(() {
+      _isLoading = false;
+    });
     if (res.item2.isNotEmpty) {
       _key.currentState!.showSnackBar(SnackBar(
         content: Text('خطا در دریافت نتیجه: ${res.item2}'),
@@ -136,7 +138,6 @@ class _MyHomePageState extends State<MyHomePage>
       ));
     }
     setState(() {
-      _isLoading = false;
       if (res.item2.isEmpty) {
         _poem = res.item1;
       }
@@ -210,18 +211,23 @@ class _MyHomePageState extends State<MyHomePage>
       return;
     }
 
-    setState(() {
-      _curVerseOrder = 0;
-      _isLoading = true;
-    });
+    _curVerseOrder = 0;
 
     _recitation =
         _poem!.recitations[Random().nextInt(_poem!.recitations.length)];
 
     if (_recitation!.verses == null) {
+      setState(() {
+        _isLoading = true;
+      });
       var res = await GanjoorService().getVerses(_recitation!.id);
+      setState(() {
+        _isLoading = false;
+      });
       if (res.item2.isEmpty) {
-        _recitation!.verses = res.item1;
+        setState(() {
+          _recitation!.verses = res.item1;
+        });
       }
     }
 
@@ -229,10 +235,6 @@ class _MyHomePageState extends State<MyHomePage>
     if (autoPlay) {
       await _player.play();
     }
-
-    setState(() {
-      _isLoading = false;
-    });
   }
 
   @override
@@ -290,30 +292,29 @@ class _MyHomePageState extends State<MyHomePage>
                   ),
                   PopupMenuButton<int>(
                     tooltip: 'تغییر خوانشگر',
-                    onSelected: (int id) async {
+                    onSelected: (int? id) async {
+                      if (id == null) return;
                       if (_player.playing) {
                         await _player.stop();
                       }
-                      setState(() {
-                        _isLoading = true;
-                        _recitation = _poem!.recitations
-                            .where((element) => element!.id == id)
-                            .first;
-                      });
+
                       if (_recitation!.verses == null) {
+                        setState(() {
+                          _isLoading = true;
+                        });
                         var res =
                             await GanjoorService().getVerses(_recitation!.id);
+                        setState(() {
+                          _isLoading = false;
+                        });
                         if (res.item2.isEmpty) {
                           _recitation!.verses = res.item1;
                         }
                       }
 
                       await _player.setUrl(_recitation!.mp3Url);
-                      await _player.play();
 
-                      setState(() {
-                        _isLoading = false;
-                      });
+                      await _player.play();
                     },
                     child: ElevatedButton.icon(
                         icon: const Icon(Icons.person),
