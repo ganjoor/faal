@@ -18,7 +18,7 @@ void main() {
 }
 
 class FaalApp extends StatefulWidget {
-  const FaalApp({Key? key}) : super(key: key);
+  const FaalApp({super.key});
 
   @override
   State<StatefulWidget> createState() => FaalAppState();
@@ -75,7 +75,7 @@ class FaalAppState extends State<FaalApp> {
 }
 
 class MyHomePage extends StatefulWidget {
-  const MyHomePage({Key? key}) : super(key: key);
+  const MyHomePage({super.key});
 
   // This widget is the home page of your application. It is stateful, meaning
   // that it has a State object (defined below) that contains fields that affect
