@@ -12,7 +12,8 @@
                 "-d",
                 "chrome",
                 "--web-port",
-                "8903"
+                "8903",
+                "--no-web-resources-cdn"
               ]
         }
     ]
