@@ -71,4 +71,10 @@ flutter:
   - family: IranNastaliq
     fonts:
       - asset: fonts/IranNastaliq.ttf
-
+  - family: Roboto
+    fonts:
+      - asset: fonts/Roboto-Regular.ttf
+      - asset: fonts/Roboto-Bold.ttf
+        weight: 700
+      - asset: fonts/Roboto-Medium.ttf
+        weight: 500 
